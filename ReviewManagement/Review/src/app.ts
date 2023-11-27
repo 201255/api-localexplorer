@@ -31,7 +31,7 @@ app.use('/api/v1/reviews', reviewRoutes);
 
 
 
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 3004;
 app.listen(port, () => {
   console.log(`Corriendo en el puerto ${port}`);
 });

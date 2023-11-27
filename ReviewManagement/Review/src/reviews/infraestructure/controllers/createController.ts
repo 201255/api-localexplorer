@@ -8,15 +8,19 @@ export class CreateReviewController {
         console.log("controller")
 
         try {
-
-            let {
-                message,
-                userId,
-            }= req.body
+            let message = req.body.message;
+            let userId = req.body.userId;
+            let restaurantId = Number(req.query.restaurantId);
+            // let {
+            //     message,
+            //     userId,
+            //     restaurantId
+            // }= req.body
 
             let createReview = await this.createReviewCase.run(
                 message,
                 userId,
+                restaurantId
             )
             if (createReview instanceof Error) {
                 return res.status(409).send({
@@ -29,7 +33,8 @@ export class CreateReviewController {
                     status: "succes",
                     data: {
                         message: createReview.message,
-                        userId: createReview.userId
+                        userId: createReview.userId,
+                        restaurantId: createReview.restaurantId
                     }
                 })
             }

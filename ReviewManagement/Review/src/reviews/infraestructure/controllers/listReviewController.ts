@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ListAllReviewUseCase } from "../../application/usecase/listAllReviewUseCase";
+import { review } from "../../domain/entities/review";
 
 export class ReviewsController {
     constructor(
@@ -7,35 +8,47 @@ export class ReviewsController {
     ){}
 
     async listAllReviews(req: Request, res: Response) {
-        try{
-            const reviews = await this.listAllReviewUseCase.getAllReviews();
-            if (reviews && reviews.length > 0) {
-                return res.status(200).json({
-                  status: 'success',
-                  data: reviews,
-                  message: 'Lista de pagos obtenida exitosamente',
-                });
-              }
-              return res.status(404).json({
-                status: 'error',
-                message: 'No se encontraron comentarios',
-              });
-            } catch (error) {   
-              if (error instanceof Error) {
+      try {
+        let restaurantId = Number(req.query.restaurantId);
     
-                  if (error.message.startsWith('[')) {
-                    
-                    return res.status(400).send({
-                      status: "error",
-                      message: "Validation failed",
-                      errors: JSON.parse(error.message)
-                    });
-                  }
-                }
-                return res.status(500).send({
-                  status: "error",
-                  message: "An error occurred."
-                });
-          }
+        if (isNaN(restaurantId)) {
+          return res.status(400).send({
+            status: "Error",
+            message: "restaurantId must be a number"
+          });
+        }
+    
+        let restaurantRes = await this.listAllReviewUseCase.run(restaurantId);
+    
+        if (restaurantRes instanceof Error) {
+          // En caso de un error, considera devolver un estado 500 Internal Server Error
+          return res.status(500).send({
+            status: "Error",
+            message: restaurantRes.message
+          });
+        }
+    
+        // Verifica si el resultado es un array vacío, en lugar de verificar si es una instancia de `review`
+        if (Array.isArray(restaurantRes) && restaurantRes.length > 0) {
+          return res.status(200).send({
+            status: "success",
+            data: restaurantRes
+          });
+        } else {
+          return res.status(404).send({
+            status: "Not Found",
+            message: "No reviews found for the specified restaurantId"
+          });
+        }
+      } catch (error) {
+        // En caso de un error no controlado, devuelve un estado 500 Internal Server Error
+        console.error("Unhandled error:", error);
+        return res.status(500).send({
+          status: "Error",
+          message: "An unexpected error occurred"
+        });
+      }
     }
+    
 }
+

@@ -6,16 +6,16 @@ import { IReviewRepository } from "../../domain/repositories/reviewRepository";
 
 export class MysqlReviewRepository implements IReviewRepository {
 
-    async createReview( message: string, userId: string): Promise<string | review | Error | null> {
+    async createReview( message: string, userId: string, restaurantId: number): Promise<string | review | Error | null> {
         
         try{
-            let sql = "INSERT INTO reviews(message,userId) VALUES (?,?)";
-            const params: any[] = [message, userId];
+            let sql = "INSERT INTO reviews(message,userId,restaurantId) VALUES (?,?,?)";
+            const params: any[] = [message, userId,restaurantId];
             console.log(sql)
             console.log(params)
             const [result]: any = await query(sql,params);
             console.log(result);
-            return new review(message,userId,null);
+            return new review(message,userId,restaurantId,null);
 
         }catch (error) {
             console.error("Error adding review:", error);
@@ -23,35 +23,36 @@ export class MysqlReviewRepository implements IReviewRepository {
         }
     }
 
-    async listAllReviews(): Promise<any[]> {
+    async listAllReviews(restaurantId: number): Promise<any[]> {
       try {
         const sql = `
-        SELECT 
-          r.id, 
-          r.message, 
-          r.userId, 
-          JSON_OBJECT('name', u.name) as userInfo 
-        FROM 
-          reviews r 
-        INNER JOIN 
-          users u ON r.userId = u.uuid;
+          SELECT 
+            r.id, 
+            r.message, 
+            r.userId, 
+            JSON_OBJECT('name', u.name) as userInfo 
+          FROM 
+            reviews r 
+          INNER JOIN 
+            users u ON r.userId = u.uuid
+          WHERE
+            r.restaurantId = ?; 
         `;
-        const [rows]: any = await query(sql, []);
-        const dataReviews = Object.values(JSON.parse(JSON.stringify(rows)))
-        console.log(dataReviews)
-        return dataReviews.map(
-          (item: any) => ({
-            id: item.id,
-            message: item.message,
-            userId: item.userId,
-            user_info: item.userInfo
-          })
-        );
+        const params: any[] = [restaurantId];
+        const [rows]: any = await query(sql, params);
+    
+        return rows.map((row: any) => ({
+          id: row.id,
+          message: row.message,
+          userId: row.userId,
+          userInfo: row.userInfo
+        }));
       } catch (error) {
         console.error('Error al listar revisiones:', (error as Error).message);
         throw new Error('Error al listar revisiones');
       }
     }
+    
     
     
     

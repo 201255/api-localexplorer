@@ -14,14 +14,32 @@ export class ValidatorCreateReview {
     @IsUUID()
     public userId: string;
 
+    @IsNotEmpty()
+    @IsInt()
+    public restauratId: number;
+
     constructor(
         // id: number,
         message: string,
         userId: string,
+        restauratId: number,
     ){
         // this.id = id;
         this.message = message;
         this.userId = userId;
+        this.restauratId = restauratId;
     }
 
+}
+
+export class ValidationRestaurantGet {
+    @IsNotEmpty()
+    @IsInt()
+    public restaurantId:number;
+
+    constructor(
+        restaurantId:number
+    ){
+        this.restaurantId = restaurantId;
+    }
 }

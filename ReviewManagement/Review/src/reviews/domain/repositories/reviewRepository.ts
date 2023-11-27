@@ -5,7 +5,8 @@ export interface IReviewRepository {
         // id: number,
         message: string,
         userId: string,
+        restaurantId: number
     ): Promise<review | null | string | Error>;
 
-    listAllReviews(): Promise<review[]>;
+    listAllReviews(restaurantId:number): Promise<review[]>;
 }

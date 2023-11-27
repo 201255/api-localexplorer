@@ -10,10 +10,12 @@ export class CreateReviewUseCase {
     async run (
         message: string,
         userId: string,
+        restaurantId: number,
     ): Promise<review | null | string | Error>{
 
-        let data = new ValidatorCreateReview(message,userId);
+        let data = new ValidatorCreateReview(message,userId,restaurantId);
         const validation = await validate(data)
+        console.log(validation)
         if(validation.length > 0){
             throw new Error(JSON.stringify(validation))
         }
@@ -21,7 +23,8 @@ export class CreateReviewUseCase {
         try{
             const createReview = await this.reviewRepository.createReview(
                 message,
-                userId
+                userId,
+                restaurantId
             );
 
             return createReview;
