@@ -29,8 +29,6 @@ app.use(express.urlencoded({ extended: true }));
 // app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 
-
-
 const port = process.env.PORT || 3004;
 app.listen(port, () => {
   console.log(`Corriendo en el puerto ${port}`);
